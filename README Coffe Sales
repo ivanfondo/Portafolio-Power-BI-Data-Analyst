@@ -1,1 +1,51 @@
+En este archivo se documenta los pasos seguidos para transformar y modelar el archivo de Power BI.
 
+Paso 1. Obtención y transformación de datos.
+
+Tras descargar el archivo desde Kaggle (https://www.kaggle.com/datasets/mubeenshehzadi/coffee-sales-insights) se procede con una comprobación visual rápida en Excel para ver que todo está correcto.
+En esta ocasión, la configuración de decimales está en formato estado unidense por lo que la configuración regional provoca que los datos correspondientes a las ventas no pueda leer de forma correcta la separación decimal.
+Para solucionar este problema en Power BI, vamos a PowerQuery y hay ir a "Usar configuración regional" en la columna que nos interesa para indicar al programa que al leer esa columna use la configuración de Estados Unidos, a mayores, como se trata de un campo monetario,
+vamos a configurar la columna con "Número decimal fijo" que es el formato correcto a emplear para valores de moneda.
+
+Tras realizar las configuraciones correspondientes, como trabajar sobre la tabla de hechos es ineficiente, indentificamos dos columnas como tablas de dimensiones, el producto y los horarios de venta.
+Para crear las dimensiones extraemos en excel un valor único por cada registro de estas dos columnas y subimos las tablas a Power BI para crear un modelo de estrella que sea eficiente.
+
+Por último, creamos una tabla calculada para la dimensión calendario que es un elemento importante para poder crear visualizaciones y medidas con inteligencia de tiempo.
+
+Parte 2. Medidas DAX
+
+Una vez el modelo está terminado, toca crear las medidas.
+Entre las medidas se puede encontrar medidas básicas como [TotalSales], [NroVentas], [PromedioVentas].
+Medidas más "avanzadas" como el % Ventas Total Producto (Dinámico) que proporciona el porcentaje que representa cada producto u horario de forma dinámica, es decir, el % se va a actualizar en base a los filtros de selección que se encuentren en esa página.
+También está presente la misma medida de forma estática que se pondrá en contexto más adelante.
+Para no cargar el modelo con tantas medidas, creamos un grupo de cálculo que reduce el peso del modelo al solo necesitar una medida base para replicar diferentes medidas. Este grupo de cálculo se centra en medidas de "Inteligencia de tiempo", en donde 
+es fundamental la dimensión calendario creada en el paso 1, usando como medida base [TotalSales]. 
+Por último, como al crear un grupo de cálculo se desactiva de forma automática las medida agregativas, en la carpeta selección se crean dos medidas para usar en visualizaciones posteriormente.
+
+Paso 3. Páginas y Objetos Visuales
+
+La página Principal es la introducción al informe, en ella tenemos información básica y navegadores de página para ir directamente a la página que nos interesa.
+Empezando por la página "General", se va observar un resumen sobre los principales temas de estudio. Dos gráficos de barras con las ventas de cada producto y cada horario.
+También se puede observar dos tablas que muestran datos para los mismos filtros que los gráficos. En las tablas se puede observar medidas como el % que representa cada producto sobre el total y un ranking en base al total de ventas.
+
+Si volvemos a los gráficos, tenemos la posibilidad de obtener los datos para cada producto y horario mediante obtener detalles que nos lleva a las páginas "Obtener Detalles Producto" y "Obtener Detalles Horario". 
+En las páginas de obtener detalles, vamos a obtener datos específicos para cada registro. Aquí es donde entra en juego la medida DAX de [% Ventas Total Producto (Estático)] que muestra el porcentaje que representa la opción seleccionada sin verse afectada por filtros.
+Para el gráfico de barras que mide las ventas totales por Año-Mes se ha creado una columna en la dimensión de calendario con el siguiente formato 202407. Esto nos va a permitir ordenar el mes y año de forma correcta, ya que en ausencia de este campo, 
+el programa no es capaz de ordenar cronológicamente la columna que vamos a usar "Año-Mes" de forma correcta.
+
+En la página "Datos Financieros", es donde aplicamos el grupo de cálculo creado en el apartado 2. Aquí se representa la evolución de las ventas mediante una matriz que usa como filas la jerarquía de fechas.
+Como solo hay datos disponibles de marzo 2024 a marzo 2025, se crea la medida [Crecimiento MoM %] que representa el crecimiento mes a mes. 
+También se crea un gráfico de líneas en donde se configura para establecer una predicción de las ventas de cara a los próximos 30 días.
+
+En la página "Pareto", se realiza un análisis sobre el princpio de Pareto para determinar el 20% de los productos que representan el 80% de las ventas. Una herramienta muy importante que sirve para centrarse en los productos que más se venden y por tanto pueden necesitar
+un mayor stock. Este análisis se acompaña de un gráfico que muestra el análisis de forma más visual.
+
+Por último, está la página "Esquema Jerárquico", que muestra un esquema en donde se analizan las ventas en base a los horarios y productos.
+
+Parte 4. Conclusiones.
+
+Como conclusiones positivas, se puede destacar que los 4 productos que pertenecen al 20% tienen un margen de ventas muy superior a los productos restantes, lo que nos permite enfocarnos en tener un alto stock en almacén al tratarse de productos con alta rotación.
+En cuanto a horarios, las ventas son bastante equilibradas en los tres horarios que tenemos disponibles. Teniendo en cuenta como se dividen las franjas horarias, podría ser interesante crear nuevas franjas horarias más acotadas.
+
+En cuanto a conclusiones negativas, la ausencia de información como el número de unidades vendidas por transacción o los costes de los bienes vendidos [COGS], impiden el cálculo de métricas como ROI o la rentabilidad por cada producto.
+Con este tipo de datos, el análisis podría ser más detallado y por lo tanto obtener mucha más información.
