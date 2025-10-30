@@ -1,0 +1,33 @@
+En este archivo se documenta los pasos seguidos para transformar y modelar el archivo de Power BI.
+
+Paso 1. Obtención y transformación de datos.
+
+En esta ocasión se trabaja con la base de datos AdventureWorks2014, que se obtiene de los recursos ofrecidos por Microsoft. Como el archivo descargado es .bak toca recuperar la BBDD y para ello se procede mediante SSMS. Una vez recuperada, se procede a identificar las
+tablas necesarias y a realizar las consultas para para solo exportar las columnas que nos resultan de utilidad.
+
+Entre las tablas necesarias se encuentra las tablas que identifican las categorías y subcategorías de productos. Para evitar crear un módelo "copo de nieve", dentro de Power BI se combinan tablas usando como primera tabla la subcategoria.
+Este proceso se podría haber realizado en SQL y ahorraríamos esfuerzo a BI pero en esta ocasión se procedió con BI.
+
+Una vez combinadas las tablas, se conectan todas las tablas y se crea una dimensión calendario.
+
+Parte 2. Medidas DAX
+
+Para las medidas, nos hemos centrado en calcular ingresos, costes y margen bruto.
+
+Como el inventario de la tienda contiene un gran número de productos diferentes, se ha procedido a crear una clasificación ABC para determinar como se divide el inventario y en que productos podemos enfocar diferentes estrategias de marketing o aumento de precios.
+Para comprobar su funcionamiento paso a paso, primero se crea este proceso de forma estática mediante columnas calculadas. Estas columnas calculadas se crean en la tabla DimProduct.
+Primero una columna que proporciona el ingreso total de cada producto. A raíz de esta primera columna se crea una columna que represente la participación de cada producto de forma acumulada en %.
+Con esta columna que representa el porcentaje acumulado de cada producto se procede a crear una clasficación ABC en una nueva columna haciendo referencia a la columna anterior.
+Esta clasificación es funcional pero solo de forma estática, es decir, una vez se empiezan a aplicar filtros, la información mostrada no siempre va a representar el 70, 90 o 100% de forma correcta.
+
+Para representar la clasificación ABC de forma dinámica, vamos a crear las mismas columnas calculadas pero en una medida mediante variables y tablas virtuales. A mayores será necesario crear una nueva tabla calculada que funcione como auxiliar
+para representar los porcentajes correspondientes a cada clasificación. En esta ocasión, medidas como "Margen ABC" y "Margen %" en la página ABC han sido calculadas mediante "Nuevo cálculo visual".
+
+
+Paso 3. Páginas y Objetos Visuales
+
+En cuanto a las páginas, tenemos una página general en donde se muestran los ingresos totales por categoría, páis y región. En vez de tener segmentación disponible, para esta ocasión se usan marcadores que muestran las modificaciones para cada región.
+Al gráfico "Ingreso Total por Categoría" lo acompaña un tooltip.
+
+En la página ABC se puede encontrar una tabla que muestra los datos de ingreso, coste, margen, etc. para cada categoría. A mayores se encuentra disponible un esquema jerárquico para poder profundizar en mayor detalle en las regiones, categorías y países
+según el ingreso total.
